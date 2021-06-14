@@ -49,10 +49,6 @@ pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
 use smallvec::smallvec;
 pub use sp_runtime::{Permill, Perbill};
-use frame_system::{
-	EnsureRoot, EnsureOneOf,
-	limits::{BlockWeights, BlockLength}
-};
 pub use frame_support::{
 	construct_runtime, parameter_types, StorageValue,
 	traits::{KeyOwnerProofSystem, Randomness, FindAuthor, Get},
@@ -488,6 +484,7 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
 	type MaxMembers = CouncilMaxMembers;
 	type DefaultVote = pallet_collective::PrimeDefaultVote;
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+}
 
 parameter_types! {
 	pub const ProposalBond: Permill = Permill::from_percent(5);
@@ -510,14 +507,14 @@ parameter_types! {
 impl pallet_treasury::Config for Runtime {
 	type ModuleId = TreasuryModuleId;
 	type Currency = Balances;
-	type ApproveOrigin = EnsureOneOf<
+	type ApproveOrigin = frame_system::EnsureOneOf<
 		AccountId,
-		EnsureRoot<AccountId>,
+		frame_system::EnsureRoot<AccountId>,
 		pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, CouncilCollective>
 	>;
-	type RejectOrigin = EnsureOneOf<
+	type RejectOrigin = frame_system::EnsureOneOf<
 		AccountId,
-		EnsureRoot<AccountId>,
+		frame_system::EnsureRoot<AccountId>,
 		pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>
 	>;
 	type Event = Event;
