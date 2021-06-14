@@ -40,6 +40,7 @@ pallet-sudo = { version = "3.0.0", default-features = false }
 pallet-timestamp = { version = "3.0.0", default-features = false }
 pallet-transaction-payment = { version = "3.0.0", default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = "3.0.0", default-features = false }
+pallet-collective = { version = "3.0.0", default-features = false }
 
 # Primitives
 sp-api = { version = "3.0.0", default-features = false }
@@ -85,6 +86,7 @@ std = [
 	"pallet-timestamp/std",
 	"pallet-transaction-payment-rpc-runtime-api/std",
 	"pallet-transaction-payment/std",
+	"pallet-collective/std",
 
 	"sp-api/std",
 	"sp-block-builder/std",

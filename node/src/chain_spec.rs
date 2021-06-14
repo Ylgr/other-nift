@@ -1,7 +1,8 @@
 use sp_core::{H160, U256, Pair, Public, sr25519};
 use nift_node_runtime::{
 	AccountId, AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig,
-	SudoConfig, SystemConfig, WASM_BINARY, Signature, EVMConfig, EthereumConfig
+	SudoConfig, SystemConfig, WASM_BINARY, Signature, EVMConfig, EthereumConfig,
+	CouncilConfig, TechnicalCommitteeConfig
 };
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
@@ -43,7 +44,7 @@ pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
 
 const DEFAULT_PROPERTIES_TESTNET: &str = r#"
 {
-"tokenSymbol": "TTRAC",
+"tokenSymbol": "YLGR",
 "tokenDecimals": 18,
 "ss58Format": 42
 }
@@ -144,6 +145,9 @@ fn testnet_genesis(
 	endowed_accounts: Vec<AccountId>,
 	_enable_println: bool,
 ) -> GenesisConfig {
+
+	let num_endowed_accounts = endowed_accounts.len();
+
 	GenesisConfig {
 		frame_system: Some(SystemConfig {
 			// Add Wasm runtime to storage.
@@ -183,5 +187,13 @@ fn testnet_genesis(
 
 		}),
 		pallet_ethereum: Some(EthereumConfig {}),
+		pallet_collective_Instance1: Some(CouncilConfig::default()),
+		pallet_collective_Instance2: Some(TechnicalCommitteeConfig {
+			members: endowed_accounts.iter()
+				.take((num_endowed_accounts + 1) / 2)
+				.cloned()
+				.collect(),
+			phantom: Default::default(),
+		})
 	}
 }
