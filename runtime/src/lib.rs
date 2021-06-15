@@ -11,7 +11,7 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 use sp_std::{prelude::*, marker::PhantomData, convert::TryFrom};
 use codec::{Encode, Decode};
 
-use sp_core::{U256, crypto::KeyTypeId, OpaqueMetadata, H160, H256};
+use sp_core::{U256, crypto::KeyTypeId, OpaqueMetadata, H160, H256, u32_trait::{_1, _2, _3, _4, _5}};
 use sp_runtime::{
 	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature,
 	transaction_validity::{TransactionValidity, TransactionSource},
@@ -48,7 +48,7 @@ pub use sp_runtime::BuildStorage;
 pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
 use smallvec::smallvec;
-pub use sp_runtime::{Permill, Perbill};
+pub use sp_runtime::{Permill, Perbill, ModuleId};
 pub use frame_support::{
 	construct_runtime, parameter_types, StorageValue,
 	traits::{KeyOwnerProofSystem, Randomness, FindAuthor, Get},
@@ -507,6 +507,61 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
 }
 
+parameter_types! {
+	pub const ProposalBond: Permill = Permill::from_percent(5);
+	pub const ProposalBondMinimum: Balance = 1 * DOLLARS;
+	pub const SpendPeriod: BlockNumber = 1 * DAYS;
+	pub const Burn: Permill = Permill::from_percent(50);
+	pub const TipCountdown: BlockNumber = 1 * DAYS;
+	// pub const TipFindersFee: Percent = Percent::from_percent(20);
+	// pub const TipReportDepositBase: Balance = 1 * DOLLARS;
+	pub const DataDepositPerByte: Balance = 1 * CENTS;
+	pub const BountyDepositBase: Balance = 1 * DOLLARS;
+	pub const BountyDepositPayoutDelay: BlockNumber = 1 * DAYS;
+	pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+	pub const BountyUpdatePeriod: BlockNumber = 14 * DAYS;
+	pub const MaximumReasonLength: u32 = 16384;
+	pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+	pub const BountyValueMinimum: Balance = 5 * DOLLARS;
+}
+
+impl pallet_treasury::Config for Runtime {
+	type ModuleId = TreasuryModuleId;
+	type Currency = Balances;
+	type ApproveOrigin = frame_system::EnsureOneOf<
+		AccountId,
+		frame_system::EnsureRoot<AccountId>,
+		pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, CouncilCollective>
+	>;
+	type RejectOrigin = frame_system::EnsureOneOf<
+		AccountId,
+		frame_system::EnsureRoot<AccountId>,
+		pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>
+	>;
+	type Event = Event;
+	type OnSlash = ();
+	type ProposalBond = ProposalBond;
+	type ProposalBondMinimum = ProposalBondMinimum;
+	type SpendPeriod = SpendPeriod;
+	type Burn = Burn;
+	type BurnDestination = ();
+	type SpendFunds = Bounties;
+	type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
+}
+
+
+impl pallet_bounties::Config for Runtime {
+	type Event = Event;
+	type BountyDepositBase = BountyDepositBase;
+	type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+	type BountyUpdatePeriod = BountyUpdatePeriod;
+	type BountyCuratorDeposit = BountyCuratorDeposit;
+	type BountyValueMinimum = BountyValueMinimum;
+	type DataDepositPerByte = DataDepositPerByte;
+	type MaximumReasonLength = MaximumReasonLength;
+	type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -528,6 +583,8 @@ construct_runtime!(
 		EVM: pallet_evm::{Module, Config, Call, Storage, Event<T>},
 		Council: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
 		TechnicalCommittee: pallet_collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
+		Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
+		Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
 	}
 );
 

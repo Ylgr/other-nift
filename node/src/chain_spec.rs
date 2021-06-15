@@ -194,6 +194,7 @@ fn testnet_genesis(
 				.cloned()
 				.collect(),
 			phantom: Default::default(),
-		})
+		}),
+		pallet_treasury: Some(Default::default()),
 	}
 }

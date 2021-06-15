@@ -41,6 +41,8 @@ pallet-timestamp = { version = "3.0.0", default-features = false }
 pallet-transaction-payment = { version = "3.0.0", default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = "3.0.0", default-features = false }
 pallet-collective = { version = "3.0.0", default-features = false }
+pallet-bounties = { version = "3.0.0", default-features = false }
+pallet-treasury = { version = "3.0.0", default-features = false }
 
 # Primitives
 sp-api = { version = "3.0.0", default-features = false }
@@ -87,6 +89,8 @@ std = [
 	"pallet-transaction-payment-rpc-runtime-api/std",
 	"pallet-transaction-payment/std",
 	"pallet-collective/std",
+	"pallet-bounties/std",
+	"pallet-treasury/std",
 
 	"sp-api/std",
 	"sp-block-builder/std",
