@@ -60,8 +60,6 @@ pub use frame_support::{
 	ConsensusEngineId
 };
 
-mod account;
-
 /// An index to a block.
 pub type BlockNumber = u32;
 
